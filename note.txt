@@ -1,0 +1,174 @@
+net start/stop mysql57
+>>mysql -u root -h 127.0.0.1 -P 3306 -p
+>>passwd
+
+>>mysql -u root -p root --prompt CHANGE:
+or
+mysql>prompt CHANGE:_
+CHANGE:_
+
+\D total date
+\d recent database
+\h name of server
+\u recent user
+
+SELECT VERSION();
+SELECT USER();
+
+CREATE {DATABASE | SCHEMA} [IF NOT EXISTS] db_name [DEFAULT CHARACTER SET [=] charser_name]
+CREATE DATABASE base1;
+CREATE DATABASE base2 CHARACTER SET gbk;
+ALTER DATABASE base2 CHARACTER SET = utf8;
+DROP DATABASE base1;
+SHOW DATABASES; 
+SHOW WARNINGS;
+SHOW CREATE DATABASE base1;
+
+YEAR TIME DATA DATETIME TIMESTAMP
+
+USE base1;
+SELECT DATABASE();
+
+CREATE TAB LE table1(username VARCHAR(20) [NOT NULL],age TINYINT UNSIGNED DEFAULT 3,slary FLOAT(8,2) UNSIGNED);
+CREATE TABLE table2(id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(20) UNIQUE KEY);
+SHOW TABLES;
+SHOW TABLES FROM base1;
+SHOW COLUMNS FROM table1; 
+INSERT table_name[(col_name,...)] VALUES(val,...)
+SELECT * FROM table1;
+
+CREATE TABLE pro(
+    -> id SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    -> pname VARCHAR(20)
+    ->  NOT NULL);
+CREATE TABLE users(
+    -> id SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    -> username VARCHAR(10) NOT NULL,
+    -> pid SMALLINT UNSIGNED,
+    -> FOREIGN KEY (pid) REFERENCES pro (id));
+
+ALTER TABLE tbl_name ADD age TINYINT UNSIGNED DEFAULT 10 [AFTER username],DROP username;
+ALTER TABLE tbl_name MODIFY id AFTER username;
+ALTER TABLE tbl_name CHANGE [COLUMN] old_col_name new_col_name column_definition [FIRST|AFTER col_name];
+ALTER TABLE tbl_name RENAME tbl_name_new;
+
+INSERT [INTO] tbl_name [(col_name)]{VALUES|VALUE} ({expr|DEFAULF},...),(...),...;
+	INSERT users SET username='Ben',password='456';
+UPDATE [LOW_PRIORITY] [IGNORE] table_reference SET col_name1={expr1|DEFAULT} [,col_name2={expr2|DEFAULT}] ... [WHERE where_condition];
+	UPDATE users SET age=age+5 WHERE id%2=0;
+DELETE FROM tbl_name [WHERE where_condition]; 
+
+SELECT 2+3;
+SELECT 	users.id,username FROM users;
+[WHERE where_condition]
+[GROUP BY {col_name | position} [ASC|DESC],...]
+	SELECT sex FROM users GROUP BY sex;
+[HAVING where_condition]
+	SELECT age FROM users HAVING age>20;
+[ORDER BY {col_name| expr | postion} [ASC | DESC], ...]
+[LIMIT {[offset, row_name | row_count OFFSET offset]}]
+	SELECT * FROM users LIMIT 3,2//two result from index 3(start with 0)
+INSERT test(username) SELECT username FROM users WHERE age >20;
+
+SELECT AVG(goods_price) FROM tdb_goods;
+SELECT ROUND(AVG(goods_price),2) FROM tdb_goods;
+SELECT goods_id,goods_name,goods_price FROM tdb_goods WHERE goods_price>=(SELECT ROUND(AVG(goods_price),2) FROM tdb_goods);
+SELECT goods_price FROM tdb_goods WHERE goods_cate='超级本';
+SELECT goods_id,goods_name,goods_price FROM tdb_goods WHERE goods_price>=ALL(SELECT goods_price FROM tdb_goods WHERE goods_cate='超级本');
+ALL,SOME,ANY,IN,NOT IN;
+
+
+UPDATE table_references SET col_name1={expr1|DEFAULT} [,col_name2={expr2|DEFAULT}] ... [WHERE where_condition]
+	UPDATE tdb_goods INNER JOIN tdb_goods_cates ON goods_cate = cate_name SET goods_cate=cate_id;
+
+CONCAT('I','mooc');==>Imooc
+CONCAT_WS('-','I','mooc');==>I-mooc
+FORMAT(12.27,1);==>12.3
+LEFT('MySQL',2);==>My
+LENGTH('MySQ L');==>6
+LTRIM('__a__');==>a__
+RTRIM('__a__');==>__a
+TRIM('__a__');==>a
+TRIM(LEADING '?' FROM '?as?');==>as?
+	LEADING | TRAILING | BOTH
+REPLACE('??as???','?','');==>as
+SUBSTRING('asb',1,2);==>as
+SUBSTRING('asb',1);==>asb
+'MySQL' LIKE 'M%';==>1(% similar to *)
+
+SELECT POWER(3,3)==>27
+SELECT TRUNCATE(125.89,0)==>125
+CEIL()
+DIV
+FLOOR()
+
+SELECT 15 [NOT] BETERRN 1 AND 22 ==> 1
+SELECT 15 IN(1,23,13) ==> 0
+SELECT 15 IS [NOT] NULL ==> 0
+
+NOW()
+CURDATE()
+CURTIME()
+DATE_ADD()
+DATEDIFF()
+DATE_FORMAT()
+SELECT DATE_ADD('2014-3-12',INTERVAL 365 DAY)
+SELECT DATEDIFF('2013-3-12','2014-3-12')
+SELECT DATE_FORMAT('2014-3-19','%m/%d/%Y')==>03/19/2014
+
+CONNECTION_ID()
+DATABASE()
+LAST_INSERT_ID()
+USER()
+VERSION()
+SELECT AVG(goods_price) FROM tdb_goods;
+
+FUNCTION:{
+ 
+CREATE FUNCTION f1() RETURNS VARCHAR(30)
+RETURN DATE_FORMAT(NOW(),'%Y year %m month %d day %H hour:%i min:%s s');
+
+CREATE FUNCTION f2(num1 SMALLINT UNSIGNED,num2 SMALLINT UNSIGNED)
+RETURNS FLOAT(10,2) UNSIGNED
+RETURN (num1+num2)/2;
+
+DELIMITER //
+CREATE FUNCTION adduser(username VARCHAR(20))
+RETURNS INT UNSIGNED
+BEGIN
+INSERT test(username) VALUES(username);
+RETURN LAST_INSERT_ID();
+END
+//
+DELIMITER ;
+
+}
+
+CREATE PROCEDURE sp1()
+SELECT VERSION();
+CALL sp1();
+CALL sp1;
+
+DELIMITER //
+CREATE PROCEDURE removeUserById(IN p_id INT UNSIGNED)
+BEGIN
+DELETE FROM users WHERE id = p_id;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE removeUserById(IN p_id INT UNSIGNED,OUT number INT UNSIGNED)
+BEGIN
+DELETE FROM users WHERE id = p_id;
+SELECT count(id) FROM users INTO number;
+END
+//
+DELIMITER ;
+CALL removeUserById(12,@nums);
+
+SET @id=7;
+
+DROP PROCEDURE sp1();
+
